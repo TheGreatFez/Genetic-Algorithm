@@ -1,4 +1,4 @@
-function [ Child ] = Mate( Mom, Dad, Bit_Size, Genes_Total, Gene_Range, Array_Size, Mutation_Rate )
+function [ Child ] = Mate( Mom, Dad, Bit_Size, Genes_Total, Gene_Range, Array_Size, Mutation_Rate, Mutation_Size )
 %MATE Summary of this function goes here
 %   Detailed explanation goes here
 Child = zeros(1,Array_Size);
@@ -19,19 +19,23 @@ for i = 1:Genes_Total
             Mate_Bits = bitset(Mate_Bits,j,0);
             Child_Gene = bitset(Child_Gene,j,bitget(Dad_Gene,j));
         end
-        % Random Mutation based on 10% chance
-        if (rand <= Mutation_Rate/100)
-            if bitget(Child_Gene,j) == 0
-                Child_Gene = bitset(Child_Gene,j,1);
-            else
-                Child_Gene = bitset(Child_Gene,j,0);
-            end                
-            
-            Mutate_Bits = bitset(Mutate_Bits,j,1);
-            
-        end
         
-        Child(1,i) = (Child_Gene/(2^Bit_Size - 1))*Gene_Range;
+        
+        
+    end
+    
+    Child(1,i) = (Child_Gene/(2^Bit_Size - 1))*Gene_Range;
+    
+    sign = 0;
+    if (rand <= Mutation_Rate)
+       if rand <= .5
+           sign = -1;
+       else
+           sign = 1;
+       end
+       
+       Child(1,i) = Child(1,i) + sign*rand*(Mutation_Size)*Gene_Range;
+            
     end
 
 end
