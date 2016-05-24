@@ -1,42 +1,42 @@
 % Final answer we are looking for
-Answer1 = 500;
-Answer2 = 250;
-Answer3 = 750;
-Target = 10;
+Fitness_Checks = [500;
+                  250;
+                  750;
+                  100];
+Target = 0;
 
-Generation_Limit = 100;
+Generation_Limit = 1000;
 Pop_Size = 100;
 Bit_Size = 32;
 % Chance that a bit will mutate and overall size of mutation
-Mutation_Rate = 1/100;
+Mutation_Rate = 2/100;
 Mutation_Size = 1/100;
-%0 - 100
-Gene_Range = 1000;
 % Population indexes
 Max_Bit = 2^Bit_Size-1;
-Genes_Total = 3;
-% gene1 = Guess for Answer
-gene1 = 1; 
-gene2 = 2;
-gene3 = 3;
+Genes_Total = 4;
+% Gene minimal values and range of values
+Gene_Range = zeros(Genes_Total,2);
+Gene_Range = [0,1000;
+              0,1000;
+              0,1000;
+              0,1000];
+% Setting up the children array
 fitness = Genes_Total + 1;
-% Last value in the population array
 Array_Size = fitness;
-
-population = zeros(Pop_Size,fitness);
-children = zeros(Pop_Size,fitness);
+population = zeros(Pop_Size,Array_Size);
+children = zeros(Pop_Size,Array_Size);
 % Start the initial population
 for i = 1:Pop_Size
-    
-    children(i,gene1) = rand*Gene_Range;
-    children(i,gene2) = rand*Gene_Range;
-    children(i,gene3) = rand*Gene_Range;
-    
-    children(i,fitness) = abs(Answer1 - children(i,gene1)) + abs(Answer2 - children(i,gene2)) + abs(Answer3 - children(i,gene3));
-    
+    for j = 1:Genes_Total
+        children(i,j) = Gene_Range(j,1) + round(rand*Gene_Range(j,2));
+    end
+    children(i,fitness) = Fitness(children(i,1:Genes_Total),Genes_Total,Fitness_Checks);
 end
 
+Generations = 0;
+
 for i = 1:Generation_Limit
+  Generations = Generations + 1;
   population = children;  
   SortedFitness = sort(population(:,fitness));
   Mom_Fit = SortedFitness(1);
@@ -51,6 +51,7 @@ for i = 1:Generation_Limit
           check = j;
           if (Mom_Fit == population(check,fitness))
               Mom = population(check,:);
+              Best = population(check,:);
           end
           
           if (Dad_Fit == population(check,fitness))
@@ -63,7 +64,7 @@ for i = 1:Generation_Limit
       
   end
   % End condition for the generation
-  if Mom_Fit < Target
+  if Mom_Fit <= Target
       break
   end
   
@@ -71,7 +72,7 @@ for i = 1:Generation_Limit
   
       Child = Mate(Mom,Dad,Bit_Size,Genes_Total,Gene_Range,Array_Size,Mutation_Rate,Mutation_Size);
       children(j,:) = Child;
-      children(j,fitness) = abs(Answer1 - children(j,gene1)) + abs(Answer2 - children(j,gene2)) + abs(Answer3 - children(j,gene3));
+      children(j,fitness) = Fitness(children(j,1:Genes_Total),Genes_Total,Fitness_Checks);
       
   end
   
