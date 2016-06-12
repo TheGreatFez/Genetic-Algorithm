@@ -3,8 +3,8 @@ function [ Child ] = Mate( Mom, Dad, Bit_Size, Genes_Total, Gene_Range, Array_Si
 %   Detailed explanation goes here
 Child = zeros(1,Array_Size);
 for i = 1:Genes_Total
-    Mom_Gene = round((Mom(i)/Gene_Range(i,2))*(2^Bit_Size - 1));
-    Dad_Gene = round((Dad(i)/Gene_Range(i,2))*(2^Bit_Size - 1));
+    Mom_Gene = round(((Mom(i)-Gene_Range(i,1))/Gene_Range(i,2))*(2^Bit_Size - 1));
+    Dad_Gene = round(((Dad(i)-Gene_Range(i,1))/Gene_Range(i,2))*(2^Bit_Size - 1));
     Mate_Bits = 0;
     Mutate_Bits = 0;
     Child_Gene = 0;
@@ -24,7 +24,7 @@ for i = 1:Genes_Total
         
     end
     
-    Child(1,i) = round((Child_Gene/(2^Bit_Size - 1))*Gene_Range(i,2));
+    Child(1,i) = (Child_Gene/(2^Bit_Size - 1))*Gene_Range(i,2) + Gene_Range(i,1);
     
     % Random Mutation based on Mutation_Rate % chance
     sign = 0;
@@ -35,7 +35,7 @@ for i = 1:Genes_Total
            sign = 1;
        end
        
-       Child(1,i) = Child(1,i) + round(sign*rand*(Mutation_Size)*Gene_Range(i,2));
+       Child(1,i) = min(max(Child(1,i) + sign*rand*(Mutation_Size)*Gene_Range(i,2),Gene_Range(i,1)),Gene_Range(i,1) + Gene_Range(i,2));
             
     end
 
