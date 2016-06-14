@@ -8,13 +8,14 @@ Mutation_Rate = 10/100;
 Mutation_Size = 10/100;
 % Population indexes
 Max_Bit = 2^Bit_Size-1;
-Genes_Total = 4;
+Genes_Total = 5;
 % Gene minimal values and range of values
 Gene_Range = zeros(Genes_Total,2);
 Gene_Range = [Min_Throttle,Max_Throttle-Min_Throttle;
               100,2400;
               0,30;              
-              30,350];
+              30,350;
+              0,.75];
 % Setting up the children array
 fitness = Genes_Total + 1;
 Array_Size = fitness;
@@ -35,7 +36,7 @@ for i = 1:Pop_Size
         DeltaVLeft = 0;
         ecc_check = 0;
         RunSim;
-        fitness_check = Fitness(DeltaVLeft, ecc_check);
+        fitness_check = Fitness(DeltaVLeft, ecc_check, Ra_check, TargetOrbit);
     end
     fprintf('  Candidate %i Finished\n',i);
     children(i,fitness) = fitness_check;
@@ -98,7 +99,7 @@ for i = 1:Generation_Limit
         DeltaVLeft = 0;
         ecc_check = 0;
         RunSim;
-        fitness_check = Fitness(DeltaVLeft, ecc_check);
+        fitness_check = Fitness(DeltaVLeft, ecc_check, Ra_check, TargetOrbit);
       end
       fprintf('  Child %i Finished\n',j);
       children(j,fitness) = fitness_check;
