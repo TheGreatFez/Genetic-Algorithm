@@ -1,5 +1,8 @@
 Throttle = children(gen,1);
-PitchProgramSet(1,children(gen,2),children(gen,3));
+PitchOverAlt = children(gen,2);
+PitchOverAngle = children(gen,3);
+GravityTurn = 1;
+PitchProgram = PitchProgramSet(GravityTurn, PitchOverAlt, PitchOverAngle);
 SSIGN = children(gen,4);
 PitchSwitch = children(gen,5);
 evalc('sim(''NewOrbitSimulation'')');
