@@ -1,7 +1,7 @@
 PlanetSelect;
 % Final answer we are looking for
-Generation_Limit = 10;
-Pop_Size = 10;
+Generation_Limit = 50;
+Pop_Size = 25;
 Bit_Size = 32;
 % Chance that a bit will mutate and overall size of mutation
 Mutation_Rate = 10/100;
