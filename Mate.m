@@ -8,6 +8,7 @@ for i = 1:Genes_Total
     Mate_Bits = 0;
     Mutate_Bits = 0;
     Child_Gene = 0;
+    
     for j = 1:Bit_Size
         % Choose the parents genes
         if rand >= .5;
@@ -18,9 +19,7 @@ for i = 1:Genes_Total
             % Dad passes the trait
             Mate_Bits = bitset(Mate_Bits,j,0);
             Child_Gene = bitset(Child_Gene,j,bitget(Dad_Gene,j));
-        end
-        
-        
+        end        
         
     end
     

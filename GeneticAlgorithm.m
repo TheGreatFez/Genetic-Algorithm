@@ -1,8 +1,13 @@
+
+%% Initialization
+clc;
+clear;
 PlanetSelect;
 % Final answer we are looking for
-Generation_Limit = 10;
-Pop_Size = 10;
+Generation_Limit = 100;
+Pop_Size = 50;
 Bit_Size = 32;
+Children_Size = 10;
 % Chance that a bit will mutate and overall size of mutation
 Mutation_Rate = 10/100;
 Mutation_Size = 10/100;
@@ -20,93 +25,106 @@ Gene_Range = [Min_Throttle,Max_Throttle-Min_Throttle;
 fitness = Genes_Total + 1;
 Array_Size = fitness;
 population = zeros(Pop_Size,Array_Size);
-children = zeros(Pop_Size,Array_Size);
+children = zeros(Children_Size,Array_Size);
 Std_Dev = zeros(Generation_Limit+1,1);
-Best_Fit_Data = zeros(Generation_Limit,1);
-Mom_Fit_Data = zeros(Generation_Limit,1);
-% Start the initial population
+Best_Fit_Data = zeros(Generation_Limit+1,1);
+Mom_Fit_Data = zeros(Generation_Limit+1,1);
+
+%% First Generation
 fprintf('Initialization\n');
+
 for i = 1:Pop_Size
     fitness_check = 0;
     while fitness_check == 0
         for j = 1:Genes_Total
-            children(i,j) = Gene_Range(j,1) + rand*Gene_Range(j,2);
+            population(i,j) = Gene_Range(j,1) + rand*Gene_Range(j,2);
         end
         gen = i;
         DeltaVLeft = 0;
         ecc_check = 0;
+        sim_runner = population(i,:);
         RunSim;
         fitness_check = Fitness(DeltaVLeft, ecc_check, Ra_check, TargetOrbit);
     end
     fprintf('  Candidate %i Finished\n',i);
-    children(i,fitness) = fitness_check;
+    population(i,fitness) = fitness_check;
 end
-Std_Dev(1) = std(children(:,fitness));
+Std_Dev(1) = std(population(:,fitness));
 fprintf('  Standard Deviation = %f\n',Std_Dev(1));
 Generations = 0;
-Mom_Fit = 0;
-Dad_Fit = 0;
-Best_Fit = 0;
+Worst_Fit = min(population(:,fitness));
+Best_Fit = max(population(:,fitness));
+
+Best_Fit_Data(1) = Best_Fit;
+
+%%
 for i = 1:Generation_Limit
     Mutation_Rate = max((10-10*(Generations/Generation_Limit)),1)/100;
     Mutation_Size = max((10-10*(Generations/Generation_Limit)),1)/100;
     Generations = Generations + 1;
 
     fprintf('Generation %i\n',i);
-    population = children;  
-    SortedFitness = sort(population(:,fitness));
-    Mom_Fit = SortedFitness(Pop_Size);
-    Dad_Fit = SortedFitness(Pop_Size - 1);
-    if Mom_Fit > Best_Fit
-      Best_Fit = Mom_Fit;
+    %population = children;
+    % New Method
+    Parent1_index = 0;
+    Parent2_index = 0;
+    
+    while Parent1_index == Parent2_index
+        
+        Parent1_index = randi([1,Pop_Size]);
+        Parent2_index = randi([1,Pop_Size]);
+        
     end
-    Mom_Fit_Data(i) = Mom_Fit;
-    Best_Fit_Data(i) = Best_Fit;
-    Mom = -1;
-    Dad = -1;
-
-    while ((Mom < 0) & (Dad < 0) )
-
-      for j = 1:Pop_Size
-          check = j;
-          if (Mom_Fit == population(check,fitness))
-              Mom = population(check,:);
-              if Mom_Fit == Best_Fit
-                  Best = Mom;
-              end
-          end
-
-          if (Dad_Fit == population(check,fitness))
-
-              Dad = population(check,:);
-          end
+        
+    Parent1 = population(Parent1_index,:);
+    Parent2 = population(Parent2_index,:);
+    
+    % End New Method
 
 
-      end
-
-    end
-    % End condition for the generation
-    %   if Mom_Fit <= Target
-    %       break
-    %   end
-
-    for j = 1:Pop_Size
+    for j = 1:Children_Size
       fitness_check = 0;
       while fitness_check == 0  
-        Child = Mate(Mom,Dad,Bit_Size,Genes_Total,Gene_Range,Array_Size,Mutation_Rate,Mutation_Size);
+        Child = Mate(Parent1,Parent2,Bit_Size,Genes_Total,Gene_Range,Array_Size,Mutation_Rate,Mutation_Size);
         children(j,:) = Child;
         gen = j;
         DeltaVLeft = 0;
         ecc_check = 0;
+        sim_runner = Child;
         RunSim;
         fitness_check = Fitness(DeltaVLeft, ecc_check, Ra_check, TargetOrbit);
       end
       fprintf('  Child %i Finished\n',j);
       children(j,fitness) = fitness_check;
+      
+      % New Method
+      
+      if fitness_check > Worst_Fit
+          index = find(Worst_Fit == population(:,fitness),1,'first');
+          population(index,:) = children(j,:);
+          Worst_Fit = min(population(:,fitness));
+          
+          fprintf(['  Replaced ' num2str(index) ' Candidate with ' num2str(j) ...
+              'Child\n']);
+      end
+      
+      % End New Method    
 
     end
-    Std_Dev(i+1) = std(children(:,fitness));
+    Std_Dev(i+1) = std(population(:,fitness));
+    Best_Fit = max(population(:,fitness));
+    Best_Fit_Data(i+1) = Best_Fit;
     fprintf('  Standard Deviation = %f\n',Std_Dev(i+1));
 end
-plotting_x =[1:1:Generation_Limit]';
+%%
+close all
+plotting_x =[1:1:(Generation_Limit+1)]';
 Average = mean(population(:,1:3));
+figure(1)
+
+plot(plotting_x,Best_Fit_Data)
+
+axis([0 Generation_Limit+1 Best_Fit_Data(1) max(Best_Fit_Data)])
+
+figure(2)
+plot(plotting_x,Std_Dev)
