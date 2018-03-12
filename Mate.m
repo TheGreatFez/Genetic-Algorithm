@@ -1,12 +1,11 @@
-function [ Child ] = Mate( Mom, Dad, Bit_Size, Genes_Total, Gene_Range, Array_Size, Mutation_Rate, Mutation_Size )
+function [ Child ] = Mate( Mom, Dad, Bit_Size, Genes, Mutation_Rate, Mutation_Size )
 %MATE Summary of this function goes here
 %   Detailed explanation goes here
-Child = zeros(1,Array_Size);
-for i = 1:Genes_Total
-    Mom_Gene = round(((Mom(i)-Gene_Range(i,1))/Gene_Range(i,2))*(2^Bit_Size - 1));
-    Dad_Gene = round(((Dad(i)-Gene_Range(i,1))/Gene_Range(i,2))*(2^Bit_Size - 1));
+
+for i = 1:length(Genes)
+    Mom_Gene = round(((Mom(i)-Genes(i).base)/Genes(i).range)*(2^Bit_Size - 1));
+    Dad_Gene = round(((Dad(i)-Genes(i).base)/Genes(i).range)*(2^Bit_Size - 1));
     Mate_Bits = 0;
-    Mutate_Bits = 0;
     Child_Gene = 0;
     
     for j = 1:Bit_Size
@@ -23,7 +22,7 @@ for i = 1:Genes_Total
         
     end
     
-    Child(1,i) = (Child_Gene/(2^Bit_Size - 1))*Gene_Range(i,2) + Gene_Range(i,1);
+    Child.genes(i,1) = (Child_Gene/(2^Bit_Size - 1))*Genes(i).range + Genes(i).base;
     
     % Random Mutation based on Mutation_Rate % chance
     sign = 0;
@@ -34,7 +33,7 @@ for i = 1:Genes_Total
            sign = 1;
        end
        
-       Child(1,i) = min(max(Child(1,i) + sign*rand*(Mutation_Size)*Gene_Range(i,2),Gene_Range(i,1)),Gene_Range(i,1) + Gene_Range(i,2));
+       Child.genes(i,1) = min(max(Child.genes(i,1) + sign*rand*(Mutation_Size)*Genes(i).range,Genes(i).base),Genes(i).base + Genes(i).range);
             
     end
 
